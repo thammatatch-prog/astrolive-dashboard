@@ -16,13 +16,18 @@ export async function getAPOD() {
     { cache: "no-store" }
   )
   const data = await res.json()
-
   const titleTH = await translateToThai(data.title)
   const explanationTH = await translateToThai(data.explanation)
+  return { ...data, titleTH, explanationTH }
+}
 
-  return {
-    ...data,
-    titleTH,
-    explanationTH,
-  }
+export async function getNEO() {
+  const today = new Date().toISOString().split("T")[0]
+  const res = await fetch(
+    `https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=${NASA_API_KEY}`,
+    { cache: "no-store" }
+  )
+  const data = await res.json()
+  const neos = data.near_earth_objects[today] || []
+  return neos
 }

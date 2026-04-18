@@ -31,3 +31,12 @@ export async function getNEO() {
   const neos = data.near_earth_objects[today] || []
   return neos
 }
+
+export async function getMars() {
+  const res = await fetch(
+    `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=3500&api_key=${NASA_API_KEY}`,
+    { cache: "no-store" }
+  )
+  const data = await res.json()
+  return data.photos.slice(0, 12)
+}

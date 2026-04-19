@@ -1,5 +1,7 @@
 import dns from "node:dns"
 dns.setDefaultResultOrder("ipv4first")
+import { connectDB } from "@/lib/mongodb"
+import NeoCache from "@/models/NeoCache"
 
 const NASA_API_KEY = process.env.NASA_API_KEY
 
@@ -23,20 +25,24 @@ export async function getAPOD() {
 
 export async function getNEO() {
   const today = new Date().toISOString().split("T")[0]
+
+  await connectDB()
+  const cached = await NeoCache.findOne({ date: today })
+
+  if (cached) {
+    console.log("ดึงจาก Cache แล้วครับ!")
+    return cached.data
+  }
+
   const res = await fetch(
     `https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=${NASA_API_KEY}`,
     { cache: "no-store" }
   )
   const data = await res.json()
   const neos = data.near_earth_objects[today] || []
-  return neos
-}
 
-export async function getMars() {
-  const res = await fetch(
-    `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=3500&api_key=${NASA_API_KEY}`,
-    { cache: "no-store" }
-  )
-  const data = await res.json()
-  return data.photos.slice(0, 12)
+  await NeoCache.create({ date: today, data: neos })
+  console.log("เก็บลง Cache แล้วครับ!")
+
+  return neos
 }

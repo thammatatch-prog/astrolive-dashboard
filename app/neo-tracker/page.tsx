@@ -1,5 +1,7 @@
 import { getNEO } from "@/lib/nasa"
 
+export const dynamic = "force-dynamic"
+
 export default async function NeoTracker() {
   const neos = await getNEO()
 

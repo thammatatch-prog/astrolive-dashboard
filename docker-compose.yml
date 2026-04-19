@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NASA_API_KEY=7tIwSNvA3kOebzOTUUsOMeYZnijxzzGAEQml6fvU
+      - MONGODB_URI=mongodb://mongo:27017/astrolive
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
